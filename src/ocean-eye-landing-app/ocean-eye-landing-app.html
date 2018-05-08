@@ -53,13 +53,22 @@
       }
 
       .auth__wrapper {
-        padding: 15px;
+        padding: 25px 15px;
       }
       .auth__container {
+        position: relative;
+        margin: auto;
+        max-width: 600px;
         color: var(--main-color);
         background-color: #fff;
+        overflow: hidden;
+        border-radius: 3px;
         --paper-tab-ink: var(--main-color);
         --paper-tabs-selection-bar-color: var(--main-color);
+      }
+
+      .about__wrapper {
+
       }
 
     </style>
@@ -79,8 +88,8 @@
         <paper-tabs
           selected="{{authForm}}"
           attr-for-selected="name">
+          <paper-tab name="register" noink>New Project</paper-tab>
           <paper-tab name="login" noink>Login</paper-tab>
-          <paper-tab name="register" noink>Register</paper-tab>
         </paper-tabs>
       </div>
       <div class="auth__container">
@@ -96,6 +105,12 @@
             oe-email="{{email}}"
             oe-username="{{username}}"></register-form>
         </iron-pages>
+      </div>
+    </section>
+
+    <section class="about__wrapper">
+      <div class="about__container">
+
       </div>
     </section>
 
@@ -116,7 +131,7 @@
            */
           authForm: {
             type: String,
-            value: 'login',
+            value: 'register',
           },
         };
       }

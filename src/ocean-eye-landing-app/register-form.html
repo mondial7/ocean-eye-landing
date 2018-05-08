@@ -1,4 +1,7 @@
 <link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
 
 <dom-module id="register-form">
   <template>
@@ -9,16 +12,56 @@
       :host {
         display: block;
         padding: 20px;
+        text-align: left;
+      }
+      iron-icon {
+        color: hsl(0, 0%, 50%);
+        margin-right: 12px;
+      }
+      paper-input {
+        margin-bottom: 10px;
+        /* --paper-input-container-color: var(--main-color, navy); */
+        --paper-input-container-focus-color: var(--main-color, navy);
+        --paper-input-container-label-floating: {
+          color: var(--main-color, navy);
+        };
+      }
+      .submit__container {
+        text-align: center;
+      }
+      paper-button {
+        color: #fff;
+        background-color: var(--main-color, navy);
       }
     </style>
 
-    <input type="email" name="email" value="{{email}}" required />
-    <br/>
-    <input type="username" name="username" value="{{username}}" required />
-    <br/>
-    <input type="password" name="password" value="{{password}}" required />
-    <br/>
-    <input type="submit" name="submit" value="Login" />
+    <paper-input
+      id="project"
+      type="text"
+      label="Project"
+      value="{{project}}"
+      required>
+      <iron-icon icon="group-work" slot="prefix"></iron-icon>
+    </paper-input>
+    <paper-input
+      id="email"
+      type="email"
+      label="Email"
+      value="{{email}}"
+      required>
+      <iron-icon icon="mail" slot="prefix"></iron-icon>
+    </paper-input>
+    <paper-input
+      id="password"
+      type="password"
+      label="Password"
+      value="{{password}}"
+      required>
+      <iron-icon icon="lock" slot="prefix"></iron-icon>
+    </paper-input>
+    <div class="submit__container">
+      <paper-button raised on-click="_evalInputs">Start Project</paper-button>
+    </div>
 
   </template>
 
@@ -26,7 +69,57 @@
     class RegisterForm extends Polymer.Element {
       static get is() { return 'register-form'; }
       static get properties() {
-        return {};
+        return {
+          /**
+           * @type {String}
+           */
+          email: String,
+          password: String,
+          project: {
+            type: String,
+            observer: '_evalProjectName',
+          },
+          /**
+           * Minimun password length
+           * @type {Number}
+           */
+          minPasswordLength: {
+            type: Number,
+            value: 6,
+          }
+        }
+      }
+      /**
+       * Validate inputs and send request
+       */
+      _evalInputs() {
+        const project = this.$.project.value;
+        const email = this.$.email.value;
+        const password = this.$.password.value;
+
+      }
+      /**
+       * Observer property 'project'
+       * Look for already existing project name
+       *
+       * @param {String}    project
+       * @param {String}    oldName project name
+       * @return {void}
+       */
+      _evalProjectName(project, oldName) {
+        if (project && project.length > 1) {
+          // TODO if there is no name list or oldName < project (deleting)
+          // TODO request list of project names (starting with {project}...)
+          // TODO look for match in the list
+        }
+      }
+      /**
+       * Validate Password
+       * @param {String}    password
+       * @return {Boolean}
+       */
+      _validatePassword(password) {
+        return password.length <= this.minPasswordLength;
       }
     }
 
