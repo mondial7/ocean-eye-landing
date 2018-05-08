@@ -1,0 +1,127 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/iron-image/iron-image.html">
+<link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../../bower_components/paper-tabs/paper-tabs.html">
+
+<!-- TODO can be refactored with prpl pattern -->
+<link rel="import" href="login-form.html">
+<link rel="import" href="register-form.html">
+
+<dom-module id="ocean-eye-landing-app">
+  <template>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      :host {
+        --background-color: #f2f2f2;
+        --main-color: #2e3c5f;
+
+        display: block;
+        position: relative;
+        height: auto;
+        width: 100%;
+        overflow: hidden;
+        min-height: 100%;
+        background: var(--background-color);
+        text-align: center;
+      }
+
+      section {
+        position: relative;
+      }
+
+      .welcome__wrapper {
+        --welcome-height: 400px;
+        height: var(--welcome-height);
+      }
+      .welcome__wrapper h1 {
+        position: relative;
+        line-height: var(--welcome-height);
+        margin: 0px;
+        font-size: 42px;
+        color: #fff;
+        text-shadow: 0px 0px 4px 15px #999;
+      }
+      .welcome__wrapper iron-image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: var(--main-color);
+      }
+
+      .auth__wrapper {
+        padding: 15px;
+      }
+      .auth__container {
+        color: var(--main-color);
+        background-color: #fff;
+        --paper-tab-ink: var(--main-color);
+        --paper-tabs-selection-bar-color: var(--main-color);
+      }
+
+    </style>
+
+    <section class="welcome__wrapper">
+      <iron-image
+        slot="background"
+        sizing="cover"
+        preload
+        fade
+        src="http://startupradiator.com/public/ocean_1920.jpg"></iron-image>
+      <h1>Ocean Eye</h1>
+    </section>
+
+    <section class="auth__wrapper">
+      <div class="auth__container">
+        <paper-tabs
+          selected="{{authForm}}"
+          attr-for-selected="name">
+          <paper-tab name="login" noink>Login</paper-tab>
+          <paper-tab name="register" noink>Register</paper-tab>
+        </paper-tabs>
+      </div>
+      <div class="auth__container">
+        <iron-pages
+            selected="[[authForm]]"
+            attr-for-selected="name">
+          <login-form
+            name="login"
+            oe-email="{{email}}"
+            oe-username="{{username}}"></login-form>
+          <register-form
+            name="register"
+            oe-email="{{email}}"
+            oe-username="{{username}}"></register-form>
+        </iron-pages>
+      </div>
+    </section>
+
+  </template>
+
+  <script>
+    /**
+     * @customElement
+     * @polymer
+     */
+    class OceanEyeLandingApp extends Polymer.Element {
+      static get is() { return 'ocean-eye-landing-app'; }
+      static get properties() {
+        return {
+          /**
+           * Tabs selector
+           * @type {String}
+           */
+          authForm: {
+            type: String,
+            value: 'login',
+          },
+        };
+      }
+    }
+
+    window.customElements.define(OceanEyeLandingApp.is, OceanEyeLandingApp);
+  </script>
+</dom-module>

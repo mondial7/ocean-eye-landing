@@ -1,0 +1,7 @@
+{
+  "name": "ocean-eye-landing",
+  "short_name": "ocean-eye-landing",
+  "description": "Landing page includes about, login, register forms and general public views",
+  "start_url": "/",
+  "display": "standalone"
+}

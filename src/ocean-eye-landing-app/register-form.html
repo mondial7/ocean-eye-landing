@@ -1,0 +1,35 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+
+<dom-module id="register-form">
+  <template>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      :host {
+        display: block;
+        padding: 20px;
+      }
+    </style>
+
+    <input type="email" name="email" value="{{email}}" required />
+    <br/>
+    <input type="username" name="username" value="{{username}}" required />
+    <br/>
+    <input type="password" name="password" value="{{password}}" required />
+    <br/>
+    <input type="submit" name="submit" value="Login" />
+
+  </template>
+
+  <script>
+    class RegisterForm extends Polymer.Element {
+      static get is() { return 'register-form'; }
+      static get properties() {
+        return {};
+      }
+    }
+
+    window.customElements.define(RegisterForm.is, RegisterForm);
+  </script>
+</dom-module>
