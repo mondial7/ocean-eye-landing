@@ -2,6 +2,10 @@
 <link rel="import" href="../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
+
+<link rel="import" href="../helpers/ocean-api.html">
 
 <dom-module id="register-form">
   <template>
@@ -10,6 +14,7 @@
         box-sizing: border-box;
       }
       :host {
+        position: relative;
         display: block;
         padding: 20px;
         text-align: left;
@@ -33,7 +38,35 @@
         color: #fff;
         background-color: var(--main-color, navy);
       }
+      paper-spinner {
+        display: block;
+        width: 32px;
+        height: 32px;
+        margin: 2px;
+        display: none;
+        opacity: 0;
+        transition: all 200ms;
+        z-index: 1;
+      }
+      paper-spinner[active] {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translateX(-50%) translateY(-50%);
+        display: block;
+        opacity: 1;
+      }
+      paper-toast {
+        --paper-toast-background-color: var(--main-color, navy);
+        /* --paper-toast-color: #fff; */
+      }
     </style>
+
+    <ocean-api
+      id="apiRegister"
+      endpoint="auth/register"
+      params="[[data]]"
+      response="{{response}}"></ocean-api>
 
     <paper-input
       id="project"
@@ -60,8 +93,16 @@
       <iron-icon icon="lock" slot="prefix"></iron-icon>
     </paper-input>
     <div class="submit__container">
-      <paper-button raised on-click="_evalInputs">Start Project</paper-button>
+      <paper-button id="submit" raised
+        on-click="_evalInputs">Start Project</paper-button>
     </div>
+
+    <paper-spinner id="spinner"></paper-spinner>
+
+    <paper-toast id="toast"
+      text="[[toastMessage]]"
+      horizontal-align="right"
+      duration="[[toastDuration]]"></paper-toast>
 
   </template>
 
@@ -71,12 +112,45 @@
       static get properties() {
         return {
           /**
+           * Form data used as parameter in the ajax call
+           * @type {Object}
+           */
+          data: {
+            type: Object,
+            observer: '_dataChanged',
+          },
+          /**
+           *
+           * @type {Object}
+           */
+          response: {
+            type: Object,
+            notify: true,
+            reflectToAttribute: true,
+          },
+          /**
+           * Loading status
+           * @type {Boolean}
+           */
+          loading: {
+            type: Boolean,
+            value: false,
+            observer: '_loading',
+          },
+          /**
            * @type {String}
            */
-          email: String,
-          password: String,
+          email: {
+            type: String,
+            value: '',
+          },
+          password: {
+            type: String,
+            value: '',
+          },
           project: {
             type: String,
+            value: '',
             observer: '_evalProjectName',
           },
           /**
@@ -86,17 +160,91 @@
           minPasswordLength: {
             type: Number,
             value: 6,
+          },
+          /**
+           * Error/Success message
+           * @type {String}
+           */
+          toastMessage: {
+            type: String,
+            value: '🙈 🙉 🙊',
+          },
+          /**
+           * Duration of toast show()
+           * @type {Numeber}
+           */
+          toastDuration: {
+            type: Number,
+            value: 1,
           }
         }
+      }
+      static get observers() {
+        return [
+          '_oninput(email, password, project)',
+        ]
+      }
+      /**
+       * Fix toast duration -> patch to hide it on component loading
+       */
+      ready() {
+        super.ready()
+        this.$.toast.toastDuration = 2500
+      }
+      /**
+       * Observer for all the form input
+       * Update form data
+       *
+       * @param {String}    email
+       * @param {String}    password
+       * @param {String}    project
+       */
+      _oninput(email, password, project) {
+        this.data = { email, password, project }
       }
       /**
        * Validate inputs and send request
        */
       _evalInputs() {
-        const project = this.$.project.value;
-        const email = this.$.email.value;
-        const password = this.$.password.value;
-
+        // show spinner
+        this.loading = true
+        // send request
+        this.$.apiRegister.execute()
+      }
+      /**
+       * Observer data
+       *
+       * @param {Object}    data
+       * @param {Object}    oldData
+       * @return {void}
+       */
+      _dataChanged(data, oldData) {
+        // prevent execution on element definition
+        if (!data) return
+        // set message
+        if (data.details) {
+          this.toastMessage = data.details
+        } else if (data.status === 'OK') {
+          this.toastMessage = 'Registered!!! 🦖'
+        }
+        // alert message
+        this.$.toast.show()
+        // hide spinner
+        this.loading = false
+      }
+      /**
+       * Observer loading
+       *
+       * @param {Boolean}   loading
+       * @param {Boolean}   oldLoading
+       * @return {void}
+       */
+      _loading(loading, oldLoading) {
+        this.$.project.disabled = loading
+        this.$.email.disabled = loading
+        this.$.password.disabled = loading
+        this.$.submit.disabled = loading
+        this.$.spinner.active = loading
       }
       /**
        * Observer property 'project'
