@@ -1,12 +1,17 @@
 {
+  "entrypoint": "index.html",
+  "shell": "src/ocean-eye-landing-app/ocean-eye-landing-app.html",
   "lint": {
     "rules": [
       "polymer-2"
     ]
   },
+  "sources": [
+    "src/**/*"
+  ],
   "builds": [
-    { "preset": "es5-bundled" },
-    { "preset": "es6-bundled" },
-    { "preset": "es6-unbundled" }
+    {
+      "preset": "es5-bundled"
+    }
   ]
 }
