@@ -38,6 +38,9 @@
         color: #fff;
         background-color: var(--main-color, navy);
       }
+      paper-button[disabled] {
+        opacity: 0.6;
+      }
       paper-spinner {
         display: block;
         width: 32px;
@@ -117,7 +120,6 @@
            */
           data: {
             type: Object,
-            observer: '_dataChanged',
           },
           /**
            *
@@ -127,6 +129,7 @@
             type: Object,
             notify: true,
             reflectToAttribute: true,
+            observer: '_responseChanged',
           },
           /**
            * Loading status
@@ -212,13 +215,12 @@
         this.$.apiRegister.execute()
       }
       /**
-       * Observer data
+       * Observer response
        *
        * @param {Object}    data
-       * @param {Object}    oldData
        * @return {void}
        */
-      _dataChanged(data, oldData) {
+      _responseChanged(data) {
         // prevent execution on element definition
         if (!data) return
         // set message
@@ -226,6 +228,7 @@
           this.toastMessage = data.details
         } else if (data.status === 'OK') {
           this.toastMessage = 'Registered!!! 🦖'
+          // TODO ... login -> redirect ...
         }
         // alert message
         this.$.toast.show()

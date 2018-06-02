@@ -1,4 +1,11 @@
 <link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
+
+<link rel="import" href="../helpers/ocean-api.html">
 
 <dom-module id="login-form">
   <template>
@@ -7,16 +14,90 @@
         box-sizing: border-box;
       }
       :host {
+        position: relative;
         display: block;
         padding: 20px;
+        text-align: left;
+      }
+      iron-icon {
+        color: hsl(0, 0%, 50%);
+        margin-right: 12px;
+      }
+      paper-input {
+        margin-bottom: 10px;
+        /* --paper-input-container-color: var(--main-color, navy); */
+        --paper-input-container-focus-color: var(--main-color, navy);
+        --paper-input-container-label-floating: {
+          color: var(--main-color, navy);
+        };
+      }
+      .submit__container {
+        text-align: center;
+      }
+      paper-button {
+        color: #fff;
+        background-color: var(--main-color, navy);
+      }
+      paper-button[disabled] {
+        opacity: 0.6;
+      }
+      paper-spinner {
+        display: block;
+        width: 32px;
+        height: 32px;
+        margin: 2px;
+        display: none;
+        opacity: 0;
+        transition: all 200ms;
+        z-index: 1;
+      }
+      paper-spinner[active] {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translateX(-50%) translateY(-50%);
+        display: block;
+        opacity: 1;
+      }
+      paper-toast {
+        --paper-toast-background-color: var(--main-color, navy);
+        /* --paper-toast-color: #fff; */
       }
     </style>
 
-    <input type="email" name="userkey" value="{{userkey}}" required />
-    <br/>
-    <input type="password" name="password" value="{{password}}" required />
-    <br/>
-    <input type="submit" name="submit" value="Login" />
+    <ocean-api
+      id="apiLogin"
+      endpoint="auth/login"
+      params="[[data]]"
+      response="{{response}}"></ocean-api>
+
+    <paper-input
+      id="email"
+      type="email"
+      label="Email"
+      value="{{email}}"
+      required>
+      <iron-icon icon="mail" slot="prefix"></iron-icon>
+    </paper-input>
+    <paper-input
+      id="password"
+      type="password"
+      label="Password"
+      value="{{password}}"
+      required>
+      <iron-icon icon="lock" slot="prefix"></iron-icon>
+    </paper-input>
+    <div class="submit__container">
+      <paper-button id="submit" raised
+        on-click="_evalInputs">Login</paper-button>
+    </div>
+
+    <paper-spinner id="spinner"></paper-spinner>
+
+    <paper-toast id="toast"
+      text="[[toastMessage]]"
+      horizontal-align="right"
+      duration="[[toastDuration]]"></paper-toast>
 
   </template>
 
@@ -24,7 +105,134 @@
     class LoginForm extends Polymer.Element {
       static get is() { return 'login-form'; }
       static get properties() {
-        return {};
+        return {
+          /**
+           * Form data used as parameter in the ajax call
+           * @type {Object}
+           */
+          data: {
+            type: Object,
+          },
+          /**
+           *
+           * @type {Object}
+           */
+          response: {
+            type: Object,
+            notify: true,
+            reflectToAttribute: true,
+            observer: '_responseChanged',
+          },
+          /**
+           * Loading status
+           * @type {Boolean}
+           */
+          loading: {
+            type: Boolean,
+            value: false,
+            observer: '_loading',
+          },
+          /**
+           * @type {String}
+           */
+          email: {
+            type: String,
+            value: '',
+          },
+          password: {
+            type: String,
+            value: '',
+          },
+          /**
+           * Minimun password length
+           * @type {Number}
+           */
+          minPasswordLength: {
+            type: Number,
+            value: 6,
+          },
+          /**
+           * Error/Success message
+           * @type {String}
+           */
+          toastMessage: {
+            type: String,
+            value: '🙈 🙉 🙊',
+          },
+          /**
+           * Duration of toast show()
+           * @type {Numeber}
+           */
+          toastDuration: {
+            type: Number,
+            value: 1,
+          }
+        }
+      }
+      static get observers() {
+        return [
+          '_oninput(email, password)',
+        ]
+      }
+      /**
+       * Fix toast duration -> patch to hide it on component loading
+       */
+      ready() {
+        super.ready()
+        this.$.toast.toastDuration = 2500
+      }
+      /**
+       * Observer for all the form input
+       * Update form data
+       *
+       * @param {String}    email
+       * @param {String}    password
+       */
+      _oninput(email, password) {
+        this.data = { email, password }
+      }
+      /**
+       * Validate inputs and send request
+       */
+      _evalInputs() {
+        // show spinner
+        this.loading = true
+        // send request
+        this.$.apiLogin.execute()
+      }
+      /**
+       * Observer response
+       *
+       * @param {Object}    data
+       * @return {void}
+       */
+      _responseChanged(data) {
+        // prevent execution on element definition
+        if (!data) return
+        // set message
+        if (data.details) {
+          this.toastMessage = data.details
+        } else if (data.status === 'OK') {
+          this.toastMessage = 'Logged in!!! 🦖'
+          // TODO ... redirect ...
+        }
+        // alert message
+        this.$.toast.show()
+        // hide spinner
+        this.loading = false
+      }
+      /**
+       * Observer loading
+       *
+       * @param {Boolean}   loading
+       * @param {Boolean}   oldLoading
+       * @return {void}
+       */
+      _loading(loading, oldLoading) {
+        this.$.email.disabled = loading
+        this.$.password.disabled = loading
+        this.$.submit.disabled = loading
+        this.$.spinner.active = loading
       }
     }
 
