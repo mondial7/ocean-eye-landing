@@ -1,7 +1,10 @@
 {
-  "name": "ocean-eye-landing",
-  "short_name": "ocean-eye-landing",
+  "name": "Ocean Eye model",
+  "short_name": "Ocean Eye",
   "description": "Landing page includes about, login, register forms and general public views",
-  "start_url": "/",
-  "display": "standalone"
+  "start_url": "/ocean-eye/",
+  "scope": "/ocean-eye/",
+  "display": "standalone",
+  "background_color": "#2e3c5f",
+  "theme_color": "#2e3c5f"
 }

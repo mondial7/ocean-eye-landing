@@ -1,6 +1,9 @@
 {
   "entrypoint": "index.html",
   "shell": "src/ocean-eye-landing-app/ocean-eye-landing-app.html",
+  "extraDependencies": [
+    "manifest.json"
+  ],
   "lint": {
     "rules": [
       "polymer-2"
