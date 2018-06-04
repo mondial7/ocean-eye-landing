@@ -77,6 +77,7 @@
       type="email"
       label="Email"
       value="{{email}}"
+      autocomplete
       required>
       <iron-icon icon="mail" slot="prefix"></iron-icon>
     </paper-input>
@@ -211,11 +212,12 @@
         // prevent execution on element definition
         if (!data) return
         // set message
-        if (data.details) {
+        if (data.status === 'ERROR' && data.details) {
           this.toastMessage = data.details
         } else if (data.status === 'OK') {
           this.toastMessage = 'Logged in!!! 🦖'
-          // TODO ... redirect ...
+          // NOTE TODO location should be parsed before using for redirection
+          window.location = window.location.href+'/dashboard/'
         }
         // alert message
         this.$.toast.show()
