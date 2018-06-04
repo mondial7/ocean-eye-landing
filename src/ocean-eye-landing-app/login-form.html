@@ -68,6 +68,7 @@
     <ocean-api
       id="apiLogin"
       endpoint="auth/login"
+      method="POST"
       params="[[data]]"
       response="{{response}}"></ocean-api>
 
@@ -165,7 +166,7 @@
            */
           toastDuration: {
             type: Number,
-            value: 1,
+            // value: 1,
           }
         }
       }
@@ -189,7 +190,7 @@
        * @param {String}    password
        */
       _oninput(email, password) {
-        this.data = { email, password }
+        this.data = { userkey: email, password }
       }
       /**
        * Validate inputs and send request
