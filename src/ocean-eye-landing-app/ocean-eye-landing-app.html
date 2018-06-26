@@ -2,10 +2,13 @@
 <link rel="import" href="../../bower_components/iron-image/iron-image.html">
 <link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
 
 <!-- TODO can be refactored with prpl pattern -->
 <link rel="import" href="login-form.html">
 <link rel="import" href="register-form.html">
+
+<link rel="import" href="../helpers/ocean-api.html">
 
 <dom-module id="ocean-eye-landing-app">
   <template>
@@ -74,12 +77,22 @@
         --paper-tab-ink: var(--main-color);
         --paper-tabs-selection-bar-color: var(--main-color);
       }
+      .auth__container > paper-button {
+        margin: 30px auto;
+        background: var(--main-color);
+        color: #fff;
+      }
 
       .about__wrapper {
 
       }
 
     </style>
+
+    <ocean-api
+      id="apiStatus"
+      endpoint="account/status"
+      response="{{_statusResponse}}"></ocean-api>
 
     <section class="welcome__wrapper">
       <iron-image
@@ -92,24 +105,32 @@
     </section>
 
     <section class="auth__wrapper">
-      <div class="auth__container">
-        <paper-tabs
-          selected="{{authForm}}"
-          attr-for-selected="name">
-          <paper-tab name="register" noink>New Project</paper-tab>
-          <paper-tab name="login" noink>Login</paper-tab>
-        </paper-tabs>
-      </div>
-      <div class="auth__container">
-        <iron-pages
-            selected="[[authForm]]"
+      <template is="dom-if" if="{{!userLogged}}">
+        <div class="auth__container">
+          <paper-tabs
+            selected="{{authForm}}"
             attr-for-selected="name">
-          <login-form
-            name="login"></login-form>
-          <register-form
-            name="register"></register-form>
-        </iron-pages>
-      </div>
+            <paper-tab name="register" noink>New Project</paper-tab>
+            <paper-tab name="login" noink>Login</paper-tab>
+          </paper-tabs>
+        </div>
+        <div class="auth__container">
+          <iron-pages
+              selected="[[authForm]]"
+              attr-for-selected="name">
+            <login-form
+              name="login"></login-form>
+            <register-form
+              name="register"></register-form>
+          </iron-pages>
+        </div>
+      </template>
+      <template is="dom-if" if="{{userLogged}}">
+        <div class="auth__container">
+          <paper-button raised
+            on-click="_goToDashboard">GO TO DASHBOARD</paper-button>
+        </div>
+      </template>
     </section>
 
     <section class="about__wrapper">
@@ -137,7 +158,44 @@
             type: String,
             value: 'register',
           },
-        };
+          /**
+           * User status API response
+           * @type {Object}
+           */
+          _statusResponse: {
+            type: Object,
+            observer: '_statusResponseChanged',
+          },
+          /**
+           * UserLogged switcher
+           * @type {Boolean}
+           */
+          userLogged: {
+            type: Boolean,
+            value: false,
+          },
+        }
+      }
+      /**
+       * Trigger API for account status checking
+       */
+      ready() {
+        super.ready()
+        this.$.apiStatus.execute()
+      }
+      /**
+       * API response observer
+       * @param {Object}
+       */
+      _statusResponseChanged(response) {
+        this.userLogged = response.status === 'OK'
+      }
+      /**
+       * Redirect to dashboard
+       */
+      _goToDashboard() {
+        // NOTE TODO location should be parsed before using for redirection
+        window.location = window.location.href+'/dashboard/'
       }
     }
 
